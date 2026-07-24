@@ -45,7 +45,8 @@
   .ng-box button{width:100%;padding:13px;border:0;border-radius:12px;
     background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600;font-size:15px;cursor:pointer}
   header{
-    display:flex; align-items:center; gap:12px; padding:16px 18px;
+    display:flex; align-items:center; gap:12px;
+    padding:16px 18px; padding-top:calc(16px + env(safe-area-inset-top));
     background:linear-gradient(180deg,#141d31,#111827); border-bottom:1px solid var(--border);
   }
   .avatar{
