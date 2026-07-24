@@ -30,6 +30,8 @@ albo `https://…-default-rtdb.europe-west1.firebasedatabase.app` dla Europy).
 {
   "rules": {
     "chats": {
+      ".read": true,
+      ".write": true,
       "$chatId": {
         ".read": true,
         ".write": true
@@ -38,6 +40,10 @@ albo `https://…-default-rtdb.europe-west1.firebasedatabase.app` dla Europy).
   }
 }
 ```
+
+> Uwaga: `.read` na poziomie `chats` jest konieczny, aby panel operatora mógł
+> wczytać listę wszystkich rozmów. Bez niego gość może pisać, ale panel nic nie
+> zobaczy (uprawnienia w Firebase nie dziedziczą się „w górę”).
 
 ---
 
