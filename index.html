@@ -72,6 +72,9 @@
   }
   button.send:active{transform:scale(.95)}
   .foot{text-align:center;font-size:11px;color:var(--muted);padding:8px}
+  .powered-bottom{margin-top:6px;font-size:12px;font-weight:600;letter-spacing:.4px;
+    background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;
+    background-clip:text;-webkit-text-fill-color:transparent}
   .warn{background:#7f1d1d;color:#fecaca;padding:10px 14px;font-size:12.5px;text-align:center}
 </style>
 </head>
@@ -83,7 +86,6 @@
         <b id="hName">Clide</b>
         <span class="status"><span class="dot"></span> online</span>
       </div>
-      <div class="powered" id="hPowered">powered by Clide</div>
     </header>
 
     <div id="cfgWarn" class="warn" style="display:none">
@@ -96,7 +98,10 @@
       <textarea id="input" rows="1" placeholder="Napisz wiadomość..." autocomplete="off"></textarea>
       <button class="send" type="submit" aria-label="Wyślij">➤</button>
     </form>
-    <div class="foot">Clide może popełniać błędy. Sprawdzaj ważne informacje.</div>
+    <div class="foot">
+      <span id="hFootName">Groch</span> może popełniać błędy. Sprawdzaj ważne informacje.
+      <div id="hPowered" class="powered-bottom">powered by Clide</div>
+    </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -108,6 +113,7 @@
     // Zastosuj teksty z konfiguracji
     document.getElementById('hName').textContent   = CFG.botName   || 'Clide';
     document.getElementById('hPowered').textContent= CFG.poweredBy || 'powered by Clide';
+    document.getElementById('hFootName').textContent= CFG.botName  || 'Groch';
     document.getElementById('hAvatar').textContent = (CFG.botName||'C').trim().charAt(0).toUpperCase();
     document.title = (CFG.botName||'Clide') + ' — AI Assistant';
     const input = document.getElementById('input');
