@@ -48,6 +48,12 @@ window.CLIDE_CONFIG = {
             "po polsku, naturalnie i zwięźle, w stylu asystenta AI. Kontynuujesz " +
             "rozmowę, odpowiadając na ostatnią wiadomość użytkownika. Jeśli " +
             "wiadomość jest niejasna lub bez kontekstu, uprzejmie poproś o " +
-            "doprecyzowanie zamiast zgadywać."
+            "doprecyzowanie zamiast zgadywać.",
+    // „Długie myślenie” w trybie auto-odpowiedzi (Groch pisze… przez X ms).
+    // Losowo z tego zakresu, żeby wyglądało naturalnie.
+    thinkingMinMs: 3000,
+    thinkingMaxMs: 9000
   }
+  // Tryb auto-odpowiedzi (Groch odpowiada sam, gdy Cię nie ma) włączasz
+  // przełącznikiem „🤖 Auto-AI” w panelu — zapisuje się w Firebase: config/autoReply.
 };
