@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Clide — Panel operatora</title>
 <style>
   :root{--bg:#0b0f17;--panel:#111827;--border:#1f2937;--text:#e5e7eb;--muted:#94a3b8;--accent:#6366f1}
@@ -18,7 +18,7 @@
   #login input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0b1220;color:var(--text);margin-bottom:10px}
   #login button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
 
-  .wrap{display:grid;grid-template-columns:300px 1fr;height:100vh}
+  .wrap{display:grid;grid-template-columns:300px 1fr;height:100vh;height:100dvh}
   .side{border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0}
   .side h2{font-size:14px;padding:16px;margin:0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
   .badge{background:var(--accent);color:#fff;border-radius:20px;font-size:11px;padding:2px 8px}
@@ -41,7 +41,7 @@
   .row.op .bubble{background:var(--accent);color:#fff;border-bottom-right-radius:4px}
   .row.usr .bubble{background:#1e293b;border-bottom-left-radius:4px}
   .empty{margin:auto;color:var(--muted);text-align:center}
-  form{display:flex;gap:8px;padding:14px;border-top:1px solid var(--border)}
+  form{display:flex;gap:8px;padding:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}
   #reply{flex:1;background:#0b1220;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:12px;resize:none;max-height:120px;outline:none}
   #reply:focus{border-color:var(--accent)}
   .send{background:var(--accent);border:0;color:#fff;width:52px;border-radius:12px;cursor:pointer;font-size:18px}
@@ -78,12 +78,12 @@
     <div class="main">
       <div class="mhead"><button id="backBtn" type="button" aria-label="Wróć">←</button><span id="mHeadText">Wybierz rozmowę po lewej</span></div>
       <div id="mMsgs"><div class="empty">Brak wybranej rozmowy</div></div>
-      <div class="typing-note" id="typingNote" style="display:none">✍️ Gość widzi teraz „Clide pisze..."</div>
+      <div class="typing-note" id="typingNote" style="display:none">✍️ Gość widzi teraz „Groch pisze..."</div>
       <form id="replyForm" style="display:none">
         <textarea id="reply" rows="1" placeholder="Odpowiedz jako Clide..."></textarea>
         <button class="send" type="submit">➤</button>
       </form>
-      <div class="hint" id="hint" style="display:none">Enter = wyślij • Zaczynając pisać, gość widzi „Clide pisze...”</div>
+      <div class="hint" id="hint" style="display:none">Enter = wyślij • Zaczynając pisać, gość widzi „Groch pisze...”</div>
     </div>
   </div>
 
