@@ -229,16 +229,35 @@
     }
 
     // ── Firebase ────────────────────────────────────────────
-    firebase.initializeApp(CFG.firebase);
-    const db = firebase.database();
-    const chatRef = db.ref('chats/'+chatId);
+    function showErr(msg){
+      const w=document.getElementById('cfgWarn');
+      w.textContent=msg; w.style.display='block';
+    }
+    let db, chatRef;
+    try{
+      firebase.initializeApp(CFG.firebase);
+      db = firebase.database();
+      chatRef = db.ref('chats/'+chatId);
+    }catch(e){
+      showErr('⚠️ Błąd Firebase: '+e.message+' — sprawdź config.js');
+      return;
+    }
+
+    // Diagnostyka połączenia: jeśli po 6 s brak połączenia → pokaż błąd
+    let connected=false;
+    db.ref('.info/connected').on('value', s=>{ connected=s.val()===true; });
+    setTimeout(()=>{
+      if(!connected){
+        showErr('⚠️ Brak połączenia z bazą. Sprawdź, czy Realtime Database jest utworzona i czy databaseURL w config.js ma właściwy region.');
+      }
+    }, 6000);
 
     // Zapisz meta rozmowy (wraz z imieniem gościa)
     chatRef.child('meta').update({
       name: userName || 'Gość',
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       lastActive: firebase.database.ServerValue.TIMESTAMP
-    });
+    }).catch(e=>showErr('⚠️ Baza odrzuciła zapis: '+e.message+' — sprawdź reguły (Rules) w Realtime Database.'));
 
     // Nasłuchuj wiadomości
     const seen=new Set(); let firstLoad=true; let hasAny=false;
@@ -273,7 +292,7 @@
       input.value=''; input.style.height='auto';
       chatRef.child('messages').push({
         from:'user', text:t, ts: firebase.database.ServerValue.TIMESTAMP
-      });
+      }).catch(e=>showErr('⚠️ Nie wysłano: '+e.message+' — sprawdź reguły bazy (Rules).'));
       chatRef.child('meta').update({ lastActive: firebase.database.ServerValue.TIMESTAMP });
     });
 
