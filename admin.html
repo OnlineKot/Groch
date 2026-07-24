@@ -47,6 +47,17 @@
   .send{background:var(--accent);border:0;color:#fff;width:52px;border-radius:12px;cursor:pointer;font-size:18px}
   .hint{font-size:11px;color:var(--muted);padding:0 14px 12px}
   .typing-note{font-size:12px;color:#fbbf24;padding:6px 18px}
+  #backBtn{display:none;background:#1e293b;border:0;color:var(--text);width:34px;height:34px;
+    border-radius:9px;cursor:pointer;font-size:18px;align-items:center;justify-content:center;flex:0 0 auto}
+  /* ── Telefon: jeden widok naraz ── */
+  @media (max-width:720px){
+    .wrap{grid-template-columns:1fr}
+    .side{display:flex}
+    .main{display:none}
+    .wrap.chat-open .side{display:none}
+    .wrap.chat-open .main{display:flex}
+    .wrap.chat-open #backBtn{display:inline-flex}
+  }
 </style>
 </head>
 <body>
@@ -65,7 +76,7 @@
       <div id="list"></div>
     </div>
     <div class="main">
-      <div class="mhead" id="mHead">Wybierz rozmowę po lewej</div>
+      <div class="mhead"><button id="backBtn" type="button" aria-label="Wróć">←</button><span id="mHeadText">Wybierz rozmowę po lewej</span></div>
       <div id="mMsgs"><div class="empty">Brak wybranej rozmowy</div></div>
       <div class="typing-note" id="typingNote" style="display:none">✍️ Gość widzi teraz „Clide pisze..."</div>
       <form id="replyForm" style="display:none">
@@ -99,7 +110,7 @@
     function start(){
       loginEl.style.display='none';
       if(!configured){
-        document.getElementById('mHead').textContent='⚠️ Uzupełnij config.js danymi z Firebase';
+        document.getElementById('mHeadText').textContent='⚠️ Uzupełnij config.js danymi z Firebase';
         return;
       }
       firebase.initializeApp(CFG.firebase);
@@ -119,6 +130,10 @@
       const listEl=document.getElementById('list');
       const countEl=document.getElementById('count');
       let chats={}; let current=null;
+      document.getElementById('backBtn').onclick=()=>{
+        document.querySelector('.wrap').classList.remove('chat-open');
+        current=null; renderList();
+      };
       const lastSeen=JSON.parse(localStorage.getItem('clide_seen')||'{}');
 
       // Lista rozmów
@@ -126,6 +141,11 @@
         chats=snap.val()||{};
         renderList();
       });
+
+      function displayName(id){
+        const c=chats[id];
+        return (c && c.meta && c.meta.name) ? c.meta.name : ('Gość '+id.slice(0,5));
+      }
 
       function lastMsg(c){
         if(!c.messages) return {text:'(brak wiadomości)', ts:c.meta&&c.meta.lastActive};
@@ -147,7 +167,7 @@
           const div=document.createElement('div');
           div.className='chat'+(current===id?' active':'');
           const unread = lm.from==='user' && (!lastSeen[id] || lastSeen[id] < lm.ts);
-          div.innerHTML='<div class="t"><span>Gość '+id.slice(0,5)+
+          div.innerHTML='<div class="t"><span>'+escapeHtml(displayName(id))+
             (unread?'<span class="unread"></span>':'')+
             '</span><span class="time">'+fmtTime(lm.ts)+'</span></div>'+
             '<div class="p">'+escapeHtml(lm.text||'').slice(0,60)+'</div>';
@@ -161,7 +181,8 @@
       let msgHandler=null, msgRef=null;
       function openChat(id){
         current=id; renderList();
-        document.getElementById('mHead').textContent='Gość '+id.slice(0,5)+' — odpisujesz jako '+(CFG.botName||'Clide');
+        document.querySelector('.wrap').classList.add('chat-open');
+        document.getElementById('mHeadText').textContent=displayName(id)+' — odpisujesz jako '+(CFG.botName||'Groch');
         document.getElementById('replyForm').style.display='flex';
         document.getElementById('hint').style.display='block';
         const mEl=document.getElementById('mMsgs'); mEl.innerHTML='';

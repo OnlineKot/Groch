@@ -21,9 +21,22 @@
   .app{
     width:100%; max-width:460px; height:min(760px,94vh);
     background:var(--panel); border:1px solid var(--border); border-radius:20px;
-    display:flex; flex-direction:column; overflow:hidden;
+    display:flex; flex-direction:column; overflow:hidden; position:relative;
     box-shadow:0 30px 80px rgba(0,0,0,.55);
   }
+  #nameGate{position:absolute;inset:0;background:var(--panel);z-index:5;display:none;
+    align-items:center;justify-content:center;padding:24px}
+  .ng-box{text-align:center;max-width:300px;width:100%}
+  .ng-avatar{width:64px;height:64px;border-radius:18px;margin:0 auto 16px;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;
+    justify-content:center;font-size:30px;font-weight:700;color:#fff;box-shadow:0 10px 30px rgba(99,102,241,.5)}
+  .ng-box h3{margin:0 0 4px;font-size:20px}
+  .ng-box p{margin:0 0 18px;color:var(--muted);font-size:14px}
+  .ng-box input{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--border);
+    background:#0b1220;color:var(--text);font-size:16px;margin-bottom:10px;outline:none}
+  .ng-box input:focus{border-color:var(--accent)}
+  .ng-box button{width:100%;padding:13px;border:0;border-radius:12px;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:600;font-size:15px;cursor:pointer}
   header{
     display:flex; align-items:center; gap:12px; padding:16px 18px;
     background:linear-gradient(180deg,#141d31,#111827); border-bottom:1px solid var(--border);
@@ -92,6 +105,16 @@
       ⚠️ Uzupełnij plik <b>config.js</b> danymi z Firebase, aby czat działał.
     </div>
 
+    <div id="nameGate">
+      <div class="ng-box">
+        <div class="ng-avatar" id="ngAvatar">G</div>
+        <h3 id="ngTitle">Zanim zaczniemy...</h3>
+        <p>Jak masz na imię?</p>
+        <input id="ngInput" type="text" placeholder="Twoje imię" maxlength="40" autocomplete="given-name" />
+        <button id="ngBtn" type="button">Rozpocznij czat</button>
+      </div>
+    </div>
+
     <div id="messages"></div>
 
     <form id="form">
@@ -132,6 +155,29 @@
     function uid(){ return Math.random().toString(36).slice(2)+Date.now().toString(36); }
     let chatId = localStorage.getItem('clide_chat_id');
     if(!chatId){ chatId = uid(); localStorage.setItem('clide_chat_id', chatId); }
+
+    // ── Imię gościa (ekran powitalny) ───────────────────────
+    let userName = localStorage.getItem('clide_name') || '';
+    document.getElementById('ngAvatar').textContent=(CFG.botName||'G').trim().charAt(0).toUpperCase();
+    (function nameGate(){
+      const gate=document.getElementById('nameGate');
+      const ngInput=document.getElementById('ngInput');
+      const ngBtn=document.getElementById('ngBtn');
+      if(userName){ boot(); return; }
+      gate.style.display='flex';
+      setTimeout(()=>ngInput.focus(),100);
+      function submitName(){
+        const n=ngInput.value.trim();
+        if(!n){ ngInput.focus(); return; }
+        userName=n; localStorage.setItem('clide_name',n);
+        gate.style.display='none';
+        boot();
+      }
+      ngBtn.onclick=submitName;
+      ngInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitName();}});
+    })();
+
+    function boot(){
 
     function addBubble(text, who){
       const row=document.createElement('div');
@@ -178,8 +224,9 @@
     const db = firebase.database();
     const chatRef = db.ref('chats/'+chatId);
 
-    // Zapisz meta rozmowy
+    // Zapisz meta rozmowy (wraz z imieniem gościa)
     chatRef.child('meta').update({
+      name: userName || 'Gość',
       createdAt: firebase.database.ServerValue.TIMESTAMP,
       lastActive: firebase.database.ServerValue.TIMESTAMP
     });
@@ -226,6 +273,8 @@
     input.addEventListener('keydown',e=>{
       if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); document.getElementById('form').requestSubmit(); }
     });
+
+    } // koniec boot()
   })();
   </script>
 </body>
