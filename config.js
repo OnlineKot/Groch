@@ -15,7 +15,7 @@ window.CLIDE_CONFIG = {
   firebase: {
     apiKey: "AIzaSyBnx2aBni9seRWNI4Hwh9Dk2uD6dFOBBWM",
     authDomain: "superwebsite-a917f.firebaseapp.com",
-    databaseURL: "https://superwebsite-a917f-default-rtdb.firebaseio.com",
+    databaseURL: "https://superwebsite-a917f-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "superwebsite-a917f",
     storageBucket: "superwebsite-a917f.firebasestorage.app",
     messagingSenderId: "835659227181",
