@@ -35,5 +35,19 @@ window.CLIDE_CONFIG = {
 
   // Czat działa TYLKO na tej domenie. Puste = brak ograniczenia.
   // (localhost jest zawsze dozwolony do testów.)
-  allowedHost: "onlinekot.github.io"
+  allowedHost: "onlinekot.github.io",
+
+  // ── Podpowiedzi AI w panelu (Groq) ────────────────────────
+  // Klucz API trzymasz w Firebase (Realtime Database), NIE tutaj:
+  //   config/groqKey = "gsk_..."   (dodaj ręcznie w konsoli Firebase)
+  // Poniżej tylko model i „osobowość” Grocha.
+  groq: {
+    model: "llama-3.3-70b-versatile",
+    // Instrukcja systemowa — jak ma się zachowywać Groch:
+    system: "Jesteś Groch — pomocny, uprzejmy asystent AI. Odpowiadasz zawsze " +
+            "po polsku, naturalnie i zwięźle, w stylu asystenta AI. Kontynuujesz " +
+            "rozmowę, odpowiadając na ostatnią wiadomość użytkownika. Jeśli " +
+            "wiadomość jest niejasna lub bez kontekstu, uprzejmie poproś o " +
+            "doprecyzowanie zamiast zgadywać."
+  }
 };

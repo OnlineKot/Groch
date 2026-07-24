@@ -45,6 +45,9 @@
   #reply{flex:1;background:#0b1220;border:1px solid var(--border);color:var(--text);padding:12px;border-radius:12px;resize:none;max-height:120px;outline:none}
   #reply:focus{border-color:var(--accent)}
   .send{background:var(--accent);border:0;color:#fff;width:52px;border-radius:12px;cursor:pointer;font-size:18px}
+  .ai{background:linear-gradient(135deg,#6366f1,#8b5cf6);border:0;color:#fff;padding:0 12px;
+    border-radius:12px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;flex:0 0 auto}
+  .ai:disabled{opacity:.55;cursor:default}
   .hint{font-size:11px;color:var(--muted);padding:0 14px 12px}
   .typing-note{font-size:12px;color:#fbbf24;padding:6px 18px}
   #backBtn{display:none;background:#1e293b;border:0;color:var(--text);width:34px;height:34px;
@@ -80,10 +83,11 @@
       <div id="mMsgs"><div class="empty">Brak wybranej rozmowy</div></div>
       <div class="typing-note" id="typingNote" style="display:none">✍️ Gość widzi teraz „Groch pisze..."</div>
       <form id="replyForm" style="display:none">
-        <textarea id="reply" rows="1" placeholder="Odpowiedz jako Clide..."></textarea>
+        <button class="ai" type="button" id="aiBtn" title="Podpowiedź AI (Groq)">✨ AI</button>
+        <textarea id="reply" rows="1" placeholder="Odpowiedz jako Groch..."></textarea>
         <button class="send" type="submit">➤</button>
       </form>
-      <div class="hint" id="hint" style="display:none">Enter = wyślij • Zaczynając pisać, gość widzi „Groch pisze...”</div>
+      <div class="hint" id="hint" style="display:none">✨ AI = podpowiedź od Groq (możesz ją edytować) • Enter = wyślij</div>
     </div>
   </div>
 
@@ -242,6 +246,46 @@
         });
         db.ref('chats/'+current+'/meta').update({lastActive:firebase.database.ServerValue.TIMESTAMP});
       });
+
+      // ── Klucz Groq z Firebase (config/groqKey) ────────────
+      let groqKey='';
+      db.ref('config').on('value', s=>{
+        const c=s.val()||{}; groqKey=c.groqKey||'';
+      });
+
+      // ── Przycisk „✨ AI”: propozycja odpowiedzi z Groq ─────
+      const aiBtn=document.getElementById('aiBtn');
+      async function askAI(){
+        if(!current) return;
+        if(!groqKey){
+          alert('Brak klucza Groq.\nDodaj w Firebase → Realtime Database:\nconfig/groqKey = "gsk_..."');
+          return;
+        }
+        const c=chats[current]; if(!c) return;
+        const arr=Object.values(c.messages||{}).sort((a,b)=>(a.ts||0)-(b.ts||0));
+        const g=CFG.groq||{};
+        const messages=[{role:'system',content:g.system||'Jesteś pomocnym asystentem AI. Odpowiadaj po polsku.'}];
+        arr.forEach(m=>messages.push({role:(m.from==='user'?'user':'assistant'),content:String(m.text||'')}));
+        aiBtn.disabled=true; const old=aiBtn.textContent; aiBtn.textContent='…';
+        try{
+          const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
+            body:JSON.stringify({model:g.model||'llama-3.3-70b-versatile',messages:messages,temperature:0.7})
+          });
+          if(!res.ok){ throw new Error('Groq '+res.status+': '+(await res.text()).slice(0,200)); }
+          const data=await res.json();
+          const text=(((data.choices||[])[0]||{}).message||{}).content||'';
+          reply.value=text.trim();
+          reply.dispatchEvent(new Event('input')); // auto-rozmiar + „Groch pisze”
+          reply.focus();
+        }catch(err){
+          alert('Nie udało się pobrać podpowiedzi AI:\n'+err.message);
+        }finally{
+          aiBtn.disabled=false; aiBtn.textContent=old;
+        }
+      }
+      aiBtn.addEventListener('click',askAI);
     }
   })();
   </script>

@@ -36,6 +36,10 @@ albo `https://…-default-rtdb.europe-west1.firebasedatabase.app` dla Europy).
         ".read": true,
         ".write": true
       }
+    },
+    "config": {
+      ".read": true,
+      ".write": true
     }
   }
 }
@@ -44,6 +48,26 @@ albo `https://…-default-rtdb.europe-west1.firebasedatabase.app` dla Europy).
 > Uwaga: `.read` na poziomie `chats` jest konieczny, aby panel operatora mógł
 > wczytać listę wszystkich rozmów. Bez niego gość może pisać, ale panel nic nie
 > zobaczy (uprawnienia w Firebase nie dziedziczą się „w górę”).
+
+---
+
+## Podpowiedzi AI (Groq) — przycisk „✨ AI” w panelu
+
+W panelu obok pola odpowiedzi jest przycisk **✨ AI**. Po kliknięciu Groq
+generuje propozycję odpowiedzi Grocha na podstawie rozmowy, wstawia ją do pola —
+**możesz ją edytować** — a potem klikasz **Wyślij**.
+
+**Klucz API dodajesz w Firebase (nie w kodzie):**
+1. Załóż darmowy klucz na **https://console.groq.com** → API Keys → Create.
+2. W Firebase → **Realtime Database** → **Data** → dodaj węzeł:
+   - klucz: `config`  →  w środku: `groqKey`  →  wartość: `gsk_...` (Twój klucz)
+   - efekt w bazie: `config/groqKey = "gsk_..."`
+3. Model i „osobowość” Grocha ustawiasz w `config.js` (sekcja `groq`).
+
+> ⚠️ **Bezpieczeństwo:** przy statycznej stronie klucz i tak trafia do przeglądarki,
+> a przy otwartych regułach ktoś mógłby odczytać `config/groqKey` z bazy. Używaj
+> **osobnego** klucza Groq tylko do tego, ustaw limity wydatków, i w razie czego
+> możesz go w każdej chwili skasować w panelu Groq.
 
 ---
 
