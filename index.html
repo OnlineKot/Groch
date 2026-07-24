@@ -142,6 +142,20 @@
   <script>
   (function(){
     const CFG = window.CLIDE_CONFIG || {};
+
+    // ── Ogranicz do dozwolonej domeny ───────────────────────
+    (function guard(){
+      const h=location.hostname;
+      const ok = !CFG.allowedHost || h===CFG.allowedHost || h==='localhost' || h==='127.0.0.1' || h==='';
+      if(!ok){
+        document.body.innerHTML='<div style="min-height:100vh;display:flex;align-items:center;'+
+          'justify-content:center;padding:24px;text-align:center;color:#94a3b8;'+
+          'font-family:-apple-system,sans-serif;background:#0b0f17">'+
+          'Ten czat działa tylko na <b style="color:#e5e7eb">&nbsp;'+CFG.allowedHost+'</b></div>';
+        throw new Error('blocked host');
+      }
+    })();
+
     // Zastosuj teksty z konfiguracji
     document.getElementById('hName').textContent   = CFG.botName   || 'Clide';
     document.getElementById('hPowered').textContent= CFG.poweredBy || 'powered by Clide';

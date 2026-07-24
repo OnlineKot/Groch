@@ -31,5 +31,9 @@ window.CLIDE_CONFIG = {
 
   // Hasło do panelu operatora (admin.html).
   // To tylko prosta bariera — NIE jest to prawdziwe zabezpieczenie.
-  adminPassword: "zmien-to-haslo"
+  adminPassword: "zmien-to-haslo",
+
+  // Czat działa TYLKO na tej domenie. Puste = brak ograniczenia.
+  // (localhost jest zawsze dozwolony do testów.)
+  allowedHost: "onlinekot.github.io"
 };
