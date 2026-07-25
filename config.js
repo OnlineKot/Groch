@@ -48,7 +48,9 @@ window.CLIDE_CONFIG = {
             "po polsku, naturalnie i zwięźle, w stylu asystenta AI. Kontynuujesz " +
             "rozmowę, odpowiadając na ostatnią wiadomość użytkownika. Jeśli " +
             "wiadomość jest niejasna lub bez kontekstu, uprzejmie poproś o " +
-            "doprecyzowanie zamiast zgadywać.",
+            "doprecyzowanie zamiast zgadywać. WAŻNE: pisz zwykłym tekstem, " +
+            "BEZ formatowania Markdown — nie używaj gwiazdek (** ani *), " +
+            "krzyżyków (#) ani backticków. Listy zapisuj myślnikami lub cyframi.",
     // „Długie myślenie” w trybie auto-odpowiedzi (Groch pisze… przez X ms).
     // Losowo z tego zakresu, żeby wyglądało naturalnie.
     thinkingMinMs: 3000,

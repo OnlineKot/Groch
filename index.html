@@ -265,6 +265,17 @@
 
     let autoBusy=false;
     function rnd(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+    // Usuwa formatowanie Markdown (** * # `), żeby dymek był czysty
+    function stripMd(s){
+      return String(s)
+        .replace(/\*\*/g,'')
+        .replace(/^\s*#{1,6}\s*/gm,'')
+        .replace(/`+/g,'')
+        .replace(/^\s*[\*\-]\s+/gm,'• ')
+        .replace(/\*/g,'')
+        .replace(/[ \t]+\n/g,'\n')
+        .trim();
+    }
     async function maybeAutoReply(){
       if(!autoReply || !groqKey || autoBusy) return;
       autoBusy=true;
@@ -284,7 +295,7 @@
         });
         if(res.ok){
           const data=await res.json();
-          const text=(((data.choices||[])[0]||{}).message||{}).content||'';
+          const text=stripMd((((data.choices||[])[0]||{}).message||{}).content||'');
           if(text.trim()){
             chatRef.child('messages').push({from:'clide',text:text.trim(),ts:firebase.database.ServerValue.TIMESTAMP});
             chatRef.child('meta').update({lastActive:firebase.database.ServerValue.TIMESTAMP});
