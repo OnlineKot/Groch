@@ -316,9 +316,13 @@
       reply.addEventListener('keydown',e=>{
         if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();document.getElementById('replyForm').requestSubmit();}
       });
+      let opLastSent={text:'',t:0};
       document.getElementById('replyForm').addEventListener('submit',e=>{
         e.preventDefault();
         const t=reply.value.trim(); if(!t||!current)return;
+        const now=Date.now();
+        if(t===opLastSent.text && (now-opLastSent.t)<2500){ reply.value=''; reply.style.height='auto'; return; }
+        opLastSent={text:t,t:now};
         reply.value=''; reply.style.height='auto';
         clearTimeout(typingTimer); setOperatorTyping(false);
         db.ref('chats/'+current+'/messages').push({

@@ -428,15 +428,22 @@
     });
 
     // Wysyłanie wiadomości
+    let lastSent={text:'', t:0}, sending=false;
     document.getElementById('form').addEventListener('submit', e=>{
       e.preventDefault();
-      if(banned) return;
+      if(banned || sending) return;
       const t=input.value.trim(); if(!t) return;
+      // Zabezpieczenie przed dublem: ta sama wiadomość w ciągu 2,5 s = ignoruj
+      const now=Date.now();
+      if(t===lastSent.text && (now-lastSent.t)<2500){ input.value=''; input.style.height='auto'; return; }
+      lastSent={text:t, t:now};
+      sending=true;
       input.value=''; input.style.height='auto';
       chatRef.child('messages').push({
         from:'user', text:t, ts: firebase.database.ServerValue.TIMESTAMP
       }).then(()=>maybeAutoReply())
-        .catch(e=>showErr('⚠️ Nie wysłano: '+e.message+' — sprawdź reguły bazy (Rules).'));
+        .catch(e=>showErr('⚠️ Nie wysłano: '+e.message+' — sprawdź reguły bazy (Rules).'))
+        .finally(()=>{ sending=false; });
       chatRef.child('meta').update({ lastActive: firebase.database.ServerValue.TIMESTAMP });
       notifyPushcut(t); // powiadom operatora na telefon
     });
