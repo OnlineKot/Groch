@@ -49,7 +49,9 @@ window.CLIDE_CONFIG = {
   //   config/groqKey = "gsk_..."   (dodaj ręcznie w konsoli Firebase)
   // Poniżej tylko model i „osobowość” Grocha.
   groq: {
-    model: "llama-3.3-70b-versatile",
+    model: "llama-3.1-8b-instant",
+    // Ile ostatnich wiadomości wysyłać jako kontekst (mniej = mniejsze zużycie limitu).
+    contextMessages: 15,
     // Instrukcja systemowa — jak ma się zachowywać Groch:
     system: "Jesteś Groch — asystent AI stworzony po to, by pomagać. Twoim celem " +
             "jest dawać szybkie i trafne odpowiedzi nawet na zaawansowane pytania. " +

@@ -414,7 +414,7 @@
         const arr=Object.values(c.messages||{}).sort((a,b)=>(a.ts||0)-(b.ts||0));
         const g=CFG.groq||{};
         const messages=[{role:'system',content:g.system||'Jesteś pomocnym asystentem AI. Odpowiadaj po polsku.'}];
-        arr.forEach(m=>messages.push({role:(m.from==='user'?'user':'assistant'),content:String(m.text||'')}));
+        arr.slice(-(g.contextMessages||15)).forEach(m=>messages.push({role:(m.from==='user'?'user':'assistant'),content:String(m.text||'')}));
         aiBtn.disabled=true; const old=aiBtn.textContent; aiBtn.textContent='…';
         try{
           const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{

@@ -323,7 +323,7 @@
         const arr=Object.values(snap.val()||{}).sort((a,b)=>(a.ts||0)-(b.ts||0));
         if(!arr.length || arr[arr.length-1].from!=='user'){ return; } // odpowiadaj tylko na wiadomość gościa
         const messages=[{role:'system',content:g.system||'Jesteś pomocnym asystentem AI. Odpowiadaj po polsku.'}];
-        arr.forEach(m=>messages.push({role:(m.from==='user'?'user':'assistant'),content:String(m.text||'')}));
+        arr.slice(-(g.contextMessages||15)).forEach(m=>messages.push({role:(m.from==='user'?'user':'assistant'),content:String(m.text||'')}));
         await new Promise(r=>setTimeout(r, rnd(g.thinkingMinMs||3000, g.thinkingMaxMs||9000))); // „długie myślenie”
         const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
           method:'POST',
@@ -351,7 +351,7 @@
         const snap=await chatRef.child('messages').once('value');
         const arr=Object.values(snap.val()||{}).sort((a,b)=>(a.ts||0)-(b.ts||0));
         const messages=[{role:'system',content:(g.system||'')+' '+(g.freeWillPrompt||'Napisz coś spontanicznie po polsku.')}];
-        arr.forEach(m=>messages.push({role:(m.from==='user'?'user':'assistant'),content:String(m.text||'')}));
+        arr.slice(-(g.contextMessages||15)).forEach(m=>messages.push({role:(m.from==='user'?'user':'assistant'),content:String(m.text||'')}));
         messages.push({role:'user',content:'(SYSTEM: napisz teraz spontaniczną wiadomość z własnej inicjatywy)'});
         await new Promise(r=>setTimeout(r, rnd(g.thinkingMinMs||3000, g.thinkingMaxMs||9000)));
         const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
