@@ -37,6 +37,13 @@ window.CLIDE_CONFIG = {
   // (localhost jest zawsze dozwolony do testów.)
   allowedHost: "onlinekot.github.io",
 
+  // ── Powiadomienia push (Pushcut) ──────────────────────────
+  // Webhook z aplikacji Pushcut (zakładka Notifications → wybierz/utwórz
+  // powiadomienie → skopiuj „Webhook URL”). Najlepiej trzymać w Firebase:
+  //   config/pushcutUrl = "https://api.pushcut.io/XXXX/notifications/NazwaPowiadomienia"
+  // Możesz też wpisać poniżej (ale trafi do publicznego repo):
+  pushcut: { url: "" },
+
   // ── Podpowiedzi AI w panelu (Groq) ────────────────────────
   // Klucz API trzymasz w Firebase (Realtime Database), NIE tutaj:
   //   config/groqKey = "gsk_..."   (dodaj ręcznie w konsoli Firebase)

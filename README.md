@@ -71,6 +71,23 @@ generuje propozycję odpowiedzi Grocha na podstawie rozmowy, wstawia ją do pola
 
 ---
 
+## Powiadomienia push na telefon (Pushcut)
+
+Gdy gość napisze, możesz dostać powiadomienie na telefon (nawet z zamkniętym panelem).
+
+1. Zainstaluj apkę **Pushcut** (iOS) i w zakładce **Notifications** utwórz
+   powiadomienie (np. „Groch”).
+2. Skopiuj jego **Webhook URL** (wygląda tak:
+   `https://api.pushcut.io/XXXX/notifications/Groch`).
+3. Wklej go do Firebase → Realtime Database:
+   - `config/pushcutUrl = "https://api.pushcut.io/XXXX/notifications/Groch"`
+
+Od teraz każda wiadomość gościa wywoła powiadomienie (tytuł = imię gościa,
+treść = jego wiadomość). Powiadomienie wysyła przeglądarka gościa, więc działa
+niezależnie od tego, czy masz otwarty panel.
+
+---
+
 ## Krok 2: Ustawienia w `config.js`
 
 ```js

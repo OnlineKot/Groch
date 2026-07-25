@@ -261,11 +261,24 @@
     }
 
     // Auto-odpowiedź AI (globalny przełącznik + klucz z Firebase)
-    let autoReply=false, groqKey='', freeWill=false, proactiveStreak=0;
+    let autoReply=false, groqKey='', freeWill=false, proactiveStreak=0, pushcutUrl='';
     db.ref('config').on('value', s=>{
       const c=s.val()||{};
       autoReply=c.autoReply===true; groqKey=c.groqKey||''; freeWill=c.freeWill===true;
+      pushcutUrl=c.pushcutUrl || (CFG.pushcut&&CFG.pushcut.url) || '';
     });
+
+    // Powiadomienie push (Pushcut) o nowej wiadomości gościa
+    function notifyPushcut(text){
+      const url=pushcutUrl || (CFG.pushcut&&CFG.pushcut.url) || '';
+      if(!url) return;
+      try{
+        fetch(url,{
+          method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'},
+          body:JSON.stringify({ title:(userName||'Gość')+' napisał(a) do Grocha', text:String(text).slice(0,240) })
+        });
+      }catch(e){ /* fire-and-forget */ }
+    }
 
     // ── Ban: zablokowany gość nie może pisać ────────────────
     let banned=false;
@@ -425,6 +438,7 @@
       }).then(()=>maybeAutoReply())
         .catch(e=>showErr('⚠️ Nie wysłano: '+e.message+' — sprawdź reguły bazy (Rules).'));
       chatRef.child('meta').update({ lastActive: firebase.database.ServerValue.TIMESTAMP });
+      notifyPushcut(t); // powiadom operatora na telefon
     });
 
     // Auto-rozmiar textarea + Enter wysyła
