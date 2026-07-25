@@ -69,8 +69,9 @@ window.CLIDE_CONFIG = {
     thinkingMaxMs: 9000,
     // ── Free will: Groch pisze sam z siebie co jakiś czas ─────
     // Losowy odstęp między spontanicznymi wiadomościami (ms).
-    freeWillMinMs: 45000,
-    freeWillMaxMs: 120000,
+    // Teraz w GODZINACH: 1 h = 3600000 ms.
+    freeWillMinMs: 3600000,   // 1 godzina
+    freeWillMaxMs: 14400000,  // 4 godziny
     freeWillPrompt: "Napisz krótką, spontaniczną wiadomość po polsku, która " +
             "podtrzyma rozmowę lub delikatnie zaczepi użytkownika — np. nawiąż " +
             "do wcześniejszego tematu albo zapytaj, co u niego. Zwykły tekst, " +
