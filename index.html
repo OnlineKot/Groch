@@ -266,6 +266,26 @@
       const c=s.val()||{}; autoReply=c.autoReply===true; groqKey=c.groqKey||'';
     });
 
+    // ── Ban: zablokowany gość nie może pisać ────────────────
+    let banned=false;
+    chatRef.child('meta/banned').on('value', s=>{
+      banned = s.val()===true;
+      const inp=document.getElementById('input');
+      const btn=document.querySelector('button.send');
+      if(banned){
+        inp.disabled=true; btn.disabled=true; inp.value=''; inp.placeholder='Zostałeś zablokowany';
+        if(!document.getElementById('banNote')){
+          const d=document.createElement('div'); d.id='banNote'; d.className='warn';
+          d.textContent='🚫 Nie możesz już pisać w tym czacie.';
+          const app=document.querySelector('.app');
+          app.insertBefore(d, document.getElementById('messages'));
+        }
+      }else{
+        inp.disabled=false; btn.disabled=false; inp.placeholder=CFG.placeholder||'Napisz wiadomość...';
+        const n=document.getElementById('banNote'); if(n) n.remove();
+      }
+    });
+
     let autoBusy=false;
     function rnd(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
     // Usuwa formatowanie Markdown (** * # `), żeby dymek był czysty
@@ -353,6 +373,7 @@
     // Wysyłanie wiadomości
     document.getElementById('form').addEventListener('submit', e=>{
       e.preventDefault();
+      if(banned) return;
       const t=input.value.trim(); if(!t) return;
       input.value=''; input.style.height='auto';
       chatRef.child('messages').push({

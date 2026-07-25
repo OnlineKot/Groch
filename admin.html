@@ -53,8 +53,17 @@
 
   .main{display:flex;flex-direction:column;min-height:0;background:var(--panel)}
   .mhead{padding:13px 16px;padding-top:calc(13px + env(safe-area-inset-top));border-bottom:1px solid var(--border);
-    font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;
+    font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;position:relative;
     background:linear-gradient(180deg,#131a2b,var(--panel))}
+  .iconbtn{background:#1c2536;border:0;color:var(--text);width:36px;height:36px;border-radius:11px;
+    cursor:pointer;font-size:20px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .menu{position:absolute;top:calc(100% - 4px);right:12px;background:var(--panel);border:1px solid var(--border);
+    border-radius:14px;box-shadow:0 22px 55px rgba(0,0,0,.55);padding:6px;display:none;z-index:30;min-width:200px}
+  .menu.open{display:block}
+  .menu button{display:flex;width:100%;gap:9px;align-items:center;background:transparent;border:0;
+    color:var(--text);padding:12px;border-radius:10px;cursor:pointer;font-size:14px;text-align:left;font-weight:500}
+  .menu button:hover{background:#161f33}
+  .menu button[data-act="delete"]{color:#f87171}
   #mHeadText{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   #mMsgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:8px}
   .row{display:flex;max-width:74%}
@@ -115,11 +124,23 @@
 
   <div class="wrap">
     <div class="side">
-      <h2>Rozmowy <span class="badge" id="count">0</span></h2>
+      <h2>Rozmowy <span class="badge" id="count">0</span>
+        <label class="switch" title="Groch odpowiada sam, nawet gdy Cię nie ma"><span class="lbl">🤖 Auto</span><input type="checkbox" class="autoToggle"><span class="track"></span></label>
+      </h2>
       <div id="list"></div>
     </div>
     <div class="main">
-      <div class="mhead"><button id="backBtn" type="button" aria-label="Wróć">←</button><span id="mHeadText">Wybierz rozmowę po lewej</span><label class="switch" title="Groch odpowiada sam, nawet gdy Cię nie ma"><span class="lbl">🤖 Auto-AI</span><input type="checkbox" id="autoToggle"><span class="track"></span></label></div>
+      <div class="mhead">
+        <button id="backBtn" type="button" aria-label="Wróć">←</button>
+        <span id="mHeadText">Wybierz rozmowę po lewej</span>
+        <label class="switch" title="Groch odpowiada sam, nawet gdy Cię nie ma"><span class="lbl">🤖 Auto-AI</span><input type="checkbox" class="autoToggle"><span class="track"></span></label>
+        <button id="menuBtn" class="iconbtn" type="button" aria-label="Menu" style="display:none">⋮</button>
+        <div id="menu" class="menu">
+          <button type="button" data-act="ban">🚫 <span id="banLabel">Zbanuj gościa</span></button>
+          <button type="button" data-act="clear">🧹 Wyczyść kontekst</button>
+          <button type="button" data-act="delete">🗑️ Usuń konto</button>
+        </div>
+      </div>
       <div id="mMsgs"><div class="empty">Brak wybranej rozmowy</div></div>
       <div class="typing-note" id="typingNote" style="display:none">✍️ Gość widzi teraz „Groch pisze..."</div>
       <form id="replyForm" style="display:none">
@@ -190,6 +211,7 @@
       let chats={}; let current=null;
       document.getElementById('backBtn').onclick=()=>{
         document.querySelector('.wrap').classList.remove('chat-open');
+        document.getElementById('menuBtn').style.display='none';
         current=null; renderList();
       };
       const lastSeen=JSON.parse(localStorage.getItem('clide_seen')||'{}');
@@ -250,6 +272,7 @@
       function openChat(id){
         current=id; renderList();
         document.querySelector('.wrap').classList.add('chat-open');
+        document.getElementById('menuBtn').style.display='flex';
         document.getElementById('mHeadText').textContent=displayName(id)+' — odpisujesz jako '+(CFG.botName||'Groch');
         document.getElementById('replyForm').style.display='flex';
         document.getElementById('hint').style.display='block';
@@ -303,10 +326,54 @@
         const c=s.val()||{}; groqKey=c.groqKey||'';
       });
 
-      // ── Przełącznik auto-odpowiedzi (config/autoReply) ────
-      const autoToggle=document.getElementById('autoToggle');
-      db.ref('config/autoReply').on('value', s=>{ autoToggle.checked = s.val()===true; });
-      autoToggle.addEventListener('change', ()=>{ db.ref('config/autoReply').set(autoToggle.checked); });
+      // ── Przełączniki auto-odpowiedzi (menu + rozmowa) ─────
+      const autoToggles=[...document.querySelectorAll('.autoToggle')];
+      db.ref('config/autoReply').on('value', s=>{
+        const on=s.val()===true; autoToggles.forEach(t=>t.checked=on);
+      });
+      autoToggles.forEach(t=>t.addEventListener('change', ()=>{
+        const on=t.checked; db.ref('config/autoReply').set(on);
+        autoToggles.forEach(o=>o.checked=on);
+      }));
+
+      // ── Menu akcji: ban / kontekst / usuń ─────────────────
+      const menuBtn=document.getElementById('menuBtn');
+      const menu=document.getElementById('menu');
+      const banLabel=document.getElementById('banLabel');
+      menuBtn.addEventListener('click', e=>{
+        e.stopPropagation();
+        if(!current) return;
+        const c=chats[current]; const banned=!!(c&&c.meta&&c.meta.banned);
+        banLabel.textContent = banned ? 'Odbanuj gościa' : 'Zbanuj gościa';
+        menu.classList.toggle('open');
+      });
+      document.addEventListener('click', ()=>menu.classList.remove('open'));
+      menu.addEventListener('click', e=>e.stopPropagation());
+      menu.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
+        const act=b.dataset.act; const id=current;
+        menu.classList.remove('open');
+        if(!id) return;
+        if(act==='ban'){
+          const c=chats[id]; const banned=!!(c&&c.meta&&c.meta.banned);
+          db.ref('chats/'+id+'/meta/banned').set(!banned);
+        }else if(act==='clear'){
+          if(confirm('Wyczyścić kontekst tej rozmowy? Groch zapomni całą historię.')){
+            db.ref('chats/'+id+'/messages').remove();
+            document.getElementById('mMsgs').innerHTML='';
+          }
+        }else if(act==='delete'){
+          if(confirm('Usunąć całe konto gościa wraz z rozmową? Tego nie da się cofnąć.')){
+            db.ref('chats/'+id).remove();
+            current=null;
+            document.querySelector('.wrap').classList.remove('chat-open');
+            document.getElementById('menuBtn').style.display='none';
+            document.getElementById('mMsgs').innerHTML='<div class="empty">Brak wybranej rozmowy</div>';
+            document.getElementById('mHeadText').textContent='Wybierz rozmowę po lewej';
+            document.getElementById('replyForm').style.display='none';
+            document.getElementById('hint').style.display='none';
+          }
+        }
+      }));
 
       // ── Przycisk „✨ AI”: propozycja odpowiedzi z Groq ─────
       const aiBtn=document.getElementById('aiBtn');
