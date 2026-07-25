@@ -261,9 +261,10 @@
     }
 
     // Auto-odpowiedź AI (globalny przełącznik + klucz z Firebase)
-    let autoReply=false, groqKey='';
+    let autoReply=false, groqKey='', freeWill=false, proactiveStreak=0;
     db.ref('config').on('value', s=>{
-      const c=s.val()||{}; autoReply=c.autoReply===true; groqKey=c.groqKey||'';
+      const c=s.val()||{};
+      autoReply=c.autoReply===true; groqKey=c.groqKey||''; freeWill=c.freeWill===true;
     });
 
     // ── Ban: zablokowany gość nie może pisać ────────────────
@@ -328,6 +329,48 @@
       finally{ chatRef.child('typing').set(false); autoBusy=false; }
     }
 
+    // ── Free will: Groch pisze sam z siebie, kiedy chce ──────
+    async function sendProactive(){
+      autoBusy=true;
+      const g=CFG.groq||{};
+      chatRef.child('typing').set(true);
+      try{
+        const snap=await chatRef.child('messages').once('value');
+        const arr=Object.values(snap.val()||{}).sort((a,b)=>(a.ts||0)-(b.ts||0));
+        const messages=[{role:'system',content:(g.system||'')+' '+(g.freeWillPrompt||'Napisz coś spontanicznie po polsku.')}];
+        arr.forEach(m=>messages.push({role:(m.from==='user'?'user':'assistant'),content:String(m.text||'')}));
+        messages.push({role:'user',content:'(SYSTEM: napisz teraz spontaniczną wiadomość z własnej inicjatywy)'});
+        await new Promise(r=>setTimeout(r, rnd(g.thinkingMinMs||3000, g.thinkingMaxMs||9000)));
+        const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':'Bearer '+groqKey},
+          body:JSON.stringify({model:g.model||'llama-3.3-70b-versatile',messages:messages,temperature:0.95})
+        });
+        if(res.ok){
+          const data=await res.json();
+          const text=stripMd((((data.choices||[])[0]||{}).message||{}).content||'');
+          if(text.trim()){
+            proactiveStreak++;
+            chatRef.child('messages').push({from:'clide',text:text.trim(),ts:firebase.database.ServerValue.TIMESTAMP});
+            chatRef.child('meta').update({lastActive:firebase.database.ServerValue.TIMESTAMP});
+          }
+        }
+      }catch(e){}
+      finally{ chatRef.child('typing').set(false); autoBusy=false; }
+    }
+    function scheduleFreeWill(){
+      const g=CFG.groq||{};
+      setTimeout(async ()=>{
+        try{
+          // pisze sam max 2 razy z rzędu, potem czeka aż gość odpisze
+          if(freeWill && groqKey && !banned && !autoBusy && proactiveStreak<2){
+            await sendProactive();
+          }
+        }finally{ scheduleFreeWill(); }
+      }, rnd(g.freeWillMinMs||45000, g.freeWillMaxMs||120000));
+    }
+    scheduleFreeWill();
+
     // Diagnostyka połączenia: jeśli po 6 s brak połączenia → pokaż błąd
     let connected=false;
     db.ref('.info/connected').on('value', s=>{ connected=s.val()===true; });
@@ -351,6 +394,7 @@
       hasAny=true;
       seen.add(snap.key);
       setTyping(false);
+      if(m.from==='user'){ proactiveStreak=0; } // gość odpisał → Groch znów może zaczepiać
       addBubble(m.text, m.from==='user'?'user':'bot');
     });
 

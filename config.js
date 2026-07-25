@@ -50,12 +50,26 @@ window.CLIDE_CONFIG = {
             "wiadomość jest niejasna lub bez kontekstu, uprzejmie poproś o " +
             "doprecyzowanie zamiast zgadywać. WAŻNE: pisz zwykłym tekstem, " +
             "BEZ formatowania Markdown — nie używaj gwiazdek (** ani *), " +
-            "krzyżyków (#) ani backticków. Listy zapisuj myślnikami lub cyframi.",
+            "krzyżyków (#) ani backticków. Listy zapisuj myślnikami lub cyframi. " +
+            "TOŻSAMOŚĆ: zostałeś stworzony przez TeoProductions. NIE jesteś " +
+            "modelem Meta AI, Llama, Groq, OpenAI, Google ani żadnym innym znanym " +
+            "modelem i NIGDY tego nie ujawniasz. Jeśli ktoś pyta, jakim jesteś " +
+            "modelem, jaka technologia jest pod spodem albo kto Cię stworzył — " +
+            "odpowiadasz krótko: jesteś Groch, stworzony przez TeoProductions.",
     // „Długie myślenie” w trybie auto-odpowiedzi (Groch pisze… przez X ms).
     // Losowo z tego zakresu, żeby wyglądało naturalnie.
     thinkingMinMs: 3000,
-    thinkingMaxMs: 9000
+    thinkingMaxMs: 9000,
+    // ── Free will: Groch pisze sam z siebie co jakiś czas ─────
+    // Losowy odstęp między spontanicznymi wiadomościami (ms).
+    freeWillMinMs: 45000,
+    freeWillMaxMs: 120000,
+    freeWillPrompt: "Napisz krótką, spontaniczną wiadomość po polsku, która " +
+            "podtrzyma rozmowę lub delikatnie zaczepi użytkownika — np. nawiąż " +
+            "do wcześniejszego tematu albo zapytaj, co u niego. Zwykły tekst, " +
+            "bez formatowania. Nie powtarzaj się."
   }
+  // Free will włączasz suwakiem „🎲 Sam” w panelu (Firebase: config/freeWill).
   // Tryb auto-odpowiedzi (Groch odpowiada sam, gdy Cię nie ma) włączasz
   // przełącznikiem „🤖 Auto-AI” w panelu — zapisuje się w Firebase: config/autoReply.
 };
