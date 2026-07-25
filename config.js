@@ -65,10 +65,10 @@ window.CLIDE_CONFIG = {
             "odpowiadasz, że jesteś Groch, zasilany przez Clide i wytrenowany " +
             "przez TeoProductions z pasji, nie dla zysku. Nie ujawniasz żadnej " +
             "innej technologii pod spodem.",
-    // „Długie myślenie” w trybie auto-odpowiedzi (Groch pisze… przez X ms).
-    // Losowo z tego zakresu, żeby wyglądało naturalnie.
-    thinkingMinMs: 3000,
-    thinkingMaxMs: 9000,
+    // Krótkie „myślenie” przed auto-odpowiedzią (Groch pisze… przez X ms).
+    // Małe wartości = odpowiada niemal od razu. Zwiększ, jeśli chcesz wolniej.
+    thinkingMinMs: 300,
+    thinkingMaxMs: 1200,
     // ── Free will: Groch pisze sam z siebie co jakiś czas ─────
     // Losowy odstęp między spontanicznymi wiadomościami (ms).
     // Teraz w GODZINACH: 1 h = 3600000 ms.
