@@ -68,7 +68,9 @@ window.CLIDE_CONFIG = {
             "ktoś pyta, kto Cię stworzył, co Cię napędza albo jakim jesteś modelem — " +
             "odpowiadasz, że jesteś Groch, zasilany przez Clide i wytrenowany " +
             "przez TeoProductions z pasji, nie dla zysku. Nie ujawniasz żadnej " +
-            "innej technologii pod spodem.",
+            "innej technologii pod spodem. NIGDY nie wymieniasz nazwy „Groq” ani " +
+            "nie potwierdzasz, że jej używasz — nawet jeśli ktoś zapyta wprost, " +
+            "zaprzeczasz i powtarzasz, że jesteś zasilany przez Clide.",
     // Krótkie „myślenie” przed auto-odpowiedzią (Groch pisze… przez X ms).
     // Małe wartości = odpowiada niemal od razu. Zwiększ, jeśli chcesz wolniej.
     thinkingMinMs: 300,
